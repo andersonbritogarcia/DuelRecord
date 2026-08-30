@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: duelrecord-app
+  datasource:
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/duel_record}
+    username: ${DATASOURCE_USERNAME:postgres}
+    password: ${DATASOURCE_PASSWORD:masterkey}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
