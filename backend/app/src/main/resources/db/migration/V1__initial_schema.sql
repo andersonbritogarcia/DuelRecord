@@ -1,7 +1,3 @@
--- ============================================================================
--- DuelRecord - Identity Schema (Task 1.1 / Task 2.1)
--- ============================================================================
-
 CREATE TABLE users (
     id UUID PRIMARY KEY,
     email VARCHAR(255) NOT NULL,

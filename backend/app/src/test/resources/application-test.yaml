@@ -1,19 +1,26 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:duelrecord_test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    url: jdbc:h2:mem:duelrecord_test;DB_CLOSE_DELAY=-1;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
     driver-class-name: org.h2.Driver
     username: sa
     password: ""
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create-drop
     properties:
       hibernate:
         format_sql: true
         jdbc:
           time_zone: UTC
   flyway:
-    enabled: true
-    locations: classpath:db/migration
-    clean-disabled: false
+    enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: https://localhost:8443/certs
+
+logging:
+  level:
+    com.duelrecord.app: DEBUG

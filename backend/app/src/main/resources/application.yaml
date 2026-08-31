@@ -1,21 +1,22 @@
 spring:
   application:
-    name: duelrecord-app
+    name: duelrecord
   datasource:
-    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/duel_record}
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/duel-record-db}
     username: ${DATASOURCE_USERNAME:postgres}
     password: ${DATASOURCE_PASSWORD:masterkey}
     driver-class-name: org.postgresql.Driver
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     properties:
       hibernate:
         format_sql: true
         jdbc:
           time_zone: UTC
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: ${GOOGLE_JWK_SET_URI:https://www.googleapis.com/oauth2/v3/certs}

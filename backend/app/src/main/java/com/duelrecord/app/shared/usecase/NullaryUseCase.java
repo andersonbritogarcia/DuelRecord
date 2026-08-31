@@ -1,4 +1,4 @@
-package com.duelrecord.app.shared.core.usecase;
+package com.duelrecord.app.shared.usecase;
 
 /**
  * Use Case contract that accepts no input and produces an output.
