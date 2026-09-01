@@ -24,7 +24,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth ->
-                                           auth.requestMatchers("/actuator/**").permitAll()
+                                           auth.requestMatchers("/actuator/**", "/api/cards/**").permitAll()
                                                .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
