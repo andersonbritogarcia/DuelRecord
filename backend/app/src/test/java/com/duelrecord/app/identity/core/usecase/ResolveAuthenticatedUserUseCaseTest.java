@@ -1,5 +1,6 @@
 package com.duelrecord.app.identity.core.usecase;
 
+import com.duelrecord.app.identity.UserAuthenticatedEvent;
 import com.duelrecord.app.identity.persistence.model.GoogleUserPrincipal;
 import com.duelrecord.app.identity.persistence.model.User;
 import com.duelrecord.app.identity.persistence.model.UserStatus;
@@ -11,6 +12,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -27,6 +29,8 @@ class ResolveAuthenticatedUserUseCaseTest {
     private ResolveAuthenticatedUserUseCase useCase;
     @Mock
     private UserRepository userRepository;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @Test
     void shouldThrowExceptionWhenPrincipalIsNull() {
@@ -52,7 +56,7 @@ class ResolveAuthenticatedUserUseCaseTest {
     void shouldCreateNewUserWhenNotFound() {
         var sub = "google-sub-123";
         var email = "player@duelrecord.com";
-        var principal = new GoogleUserPrincipal(sub, email);
+        var principal = new GoogleUserPrincipal(sub, email, "Player One");
 
         when(userRepository.findByAuthProviderId(sub)).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -69,6 +73,12 @@ class ResolveAuthenticatedUserUseCaseTest {
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
         assertEquals(email, captor.getValue().getEmail());
+
+        ArgumentCaptor<UserAuthenticatedEvent> eventCaptor = ArgumentCaptor.forClass(UserAuthenticatedEvent.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        assertEquals(result.getId(), eventCaptor.getValue().userId());
+        assertEquals(email, eventCaptor.getValue().email());
+        assertEquals("Player One", eventCaptor.getValue().name());
     }
 
     @Test
@@ -78,13 +88,13 @@ class ResolveAuthenticatedUserUseCaseTest {
         var principal = new GoogleUserPrincipal(sub, email);
 
         var existingUser = User.builder()
-                               .id(UUID.randomUUID())
-                               .email(email)
-                               .authProviderId(sub)
-                               .status(UserStatus.ACTIVE)
-                               .createdAt(Instant.now().minusSeconds(3600))
-                               .updatedAt(Instant.now().minusSeconds(3600))
-                               .build();
+                .id(UUID.randomUUID())
+                .email(email)
+                .authProviderId(sub)
+                .status(UserStatus.ACTIVE)
+                .createdAt(Instant.now().minusSeconds(3600))
+                .updatedAt(Instant.now().minusSeconds(3600))
+                .build();
 
         when(userRepository.findByAuthProviderId(sub)).thenReturn(Optional.of(existingUser));
 
@@ -93,6 +103,7 @@ class ResolveAuthenticatedUserUseCaseTest {
         assertEquals(existingUser.getId(), result.getId());
         assertEquals(email, result.getEmail());
         verify(userRepository, never()).save(any(User.class));
+        verify(eventPublisher).publishEvent(any(UserAuthenticatedEvent.class));
     }
 
     @Test
@@ -103,13 +114,13 @@ class ResolveAuthenticatedUserUseCaseTest {
         var principal = new GoogleUserPrincipal(sub, newEmail);
 
         var existingUser = User.builder()
-                               .id(UUID.randomUUID())
-                               .email(oldEmail)
-                               .authProviderId(sub)
-                               .status(UserStatus.ACTIVE)
-                               .createdAt(Instant.now().minusSeconds(3600))
-                               .updatedAt(Instant.now().minusSeconds(3600))
-                               .build();
+                .id(UUID.randomUUID())
+                .email(oldEmail)
+                .authProviderId(sub)
+                .status(UserStatus.ACTIVE)
+                .createdAt(Instant.now().minusSeconds(3600))
+                .updatedAt(Instant.now().minusSeconds(3600))
+                .build();
 
         when(userRepository.findByAuthProviderId(sub)).thenReturn(Optional.of(existingUser));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -118,5 +129,6 @@ class ResolveAuthenticatedUserUseCaseTest {
 
         assertEquals(newEmail, result.getEmail());
         verify(userRepository).save(existingUser);
+        verify(eventPublisher).publishEvent(any(UserAuthenticatedEvent.class));
     }
 }

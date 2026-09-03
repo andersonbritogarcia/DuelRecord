@@ -2,6 +2,7 @@ package com.duelrecord.app.infrastructure.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -24,8 +25,11 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth ->
-                                           auth.requestMatchers("/actuator/**", "/api/cards/**").permitAll()
-                                               .anyRequest().authenticated())
+                    auth.requestMatchers("/actuator/**", "/api/cards/**", "/api/geo/**").permitAll()
+                        .requestMatchers("/api/players/me/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/players/ghost").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/api/players/**").permitAll()
+                        .anyRequest().authenticated())
             .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
         return http.build();
