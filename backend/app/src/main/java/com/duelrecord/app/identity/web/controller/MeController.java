@@ -32,7 +32,11 @@ public class MeController {
 
         var sub = jwt.getSubject();
         var email = jwt.getClaimAsString("email");
-        var user = resolveAuthenticatedUserUseCase.execute(new GoogleUserPrincipal(sub, email));
+        var name = jwt.getClaimAsString("name");
+        if (name == null || name.isBlank()) {
+            name = jwt.getClaimAsString("given_name");
+        }
+        var user = resolveAuthenticatedUserUseCase.execute(new GoogleUserPrincipal(sub, email, name));
         return MeResponse.fromDomain(user);
     }
 

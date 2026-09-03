@@ -16,7 +16,7 @@ public record SearchCommandersInput(
     }
 
     public String normalizedQuery() {
-        return Objects.nonNull(query) ? query.trim() : "";
+        return Objects.nonNull(query) ? query : "";
     }
 
     public String canonicalColor() {

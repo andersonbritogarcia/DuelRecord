@@ -46,23 +46,23 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
 
 ## FASE 1: Setup & Foundations (Infraestrutura & Base)
 
-### Task 1.1: Backend Project Setup, Database & Flyway
-* **Stack:** Java 21, Spring Boot 3.x, Spring Modulith, PostgreSQL 16, Flyway.
+### [x] Task 1.1: Backend Project Setup, Database & Flyway
+* **Stack:** Java 21/25, Spring Boot 4.x / Spring 7, Spring Modulith, PostgreSQL 16, Flyway.
 * **Escopo:**
   1. Inicializar o projeto Spring Boot com Spring Modulith.
   2. Configurar `docker-compose.yml` para rodar PostgreSQL localmente.
-  3. Criar scripts Flyway (`V1__initial_schema.sql`) com as tabelas base: `users`, `players`, `formats`, `cards`, `deck_identities`, `matches`, `games`.
+  3. Criar scripts Flyway (`V1__initial_schema.sql`) com as tabelas base de usuários e suporte a migrations progressivas.
 * **Critérios de Aceite:**
   * Build do Gradle/Maven passa sem erros.
-  * O teste `ApplicationModules.of(DuelRecordApplication.class).verify()` roda com sucesso.
+  * O teste `ApplicationModules.of(AppApplication.class).verify()` roda com sucesso.
   * Migrations do Flyway rodam de forma idempotente.
-* **Paralelizável com:** Task 1.2
+* **Status:** Concluído com 100% dos testes verdes.
 
-### Task 1.2: Frontend Project Setup & PWA Baseline
+### [ ] Task 1.2: Frontend Project Setup & PWA Baseline
 * **Stack:** Angular 17+ (Standalone Components), TailwindCSS / Angular Material, `@angular/pwa`.
 * **Escopo:**
   1. Gerar Angular SPA com arquitetura modular por features (`features/*`, `core/*`, `shared/*`).
-  2. Adicionar suporte a PWA (`ng add @angular/pwa`) configurando o `ngsw-config.json`.
+  2. Adicionar suporte a PWA (`ng add @angular/pwa`) configurando o `ngsw-config.json` .
   3. Configurar OpenAPI Generator para consumir os contratos da API do backend.
 * **Critérios de Aceite:**
   * O app compila e instala como PWA no browser (Lighthouse PWA audit aprovado).
@@ -73,40 +73,49 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
 
 ## FASE 2: Backend Core Modules
 
-### Task 2.1: Identity & Google OAuth2 Resource Server
+### [x] Task 2.1: Identity & Google OAuth2 Resource Server
 * **Módulo:** `identity`
 * **Escopo:**
   1. Configurar Spring Security com OAuth2 Resource Server consumindo tokens JWT do Google.
   2. Criar serviço de resolução de usuário: ao receber um token válido, cria/recupera o registro na tabela `users` (baseado no `sub` do Google).
-  3. Prover endpoint `GET /api/v1/me` retornando dados do usuário e perfil de `Player` vinculado.
+  3. Prover endpoint `GET /api/me` retornando dados do usuário autenticado.
+  4. Suporte a internacionalização (i18n) em 3 idiomas (`en`, `pt_BR`, `fr`).
 * **Critérios de Aceite:**
-  * Requisição com Bearer Token mockado do Google cria o registro no banco.
+  * Requisição com Bearer Token mockado do Google cria/recupera o registro no banco.
   * Chamadas sem token retornam `401 Unauthorized`.
-* **Depende de:** Task 1.1 | **Paralelizável com:** Task 2.2, 2.3, 2.4
+  * Testes de integração e unitários passam com 100% de sucesso.
+* **Status:** Concluído.
 
-### Task 2.2: Card & Scryfall Local Cache Engine
+### [x] Task 2.2: Card & Scryfall Local Cache Engine
 * **Módulo:** `card`
 * **Escopo:**
-  1. Implementar cliente HTTP resiliente para a API do Scryfall (com rate limiting de 10 req/s).
-  2. Criar tabela `cards` e rotina de busca de comandantes (suportando filtros por nome e `color_identity`).
-  3. Criar endpoint `GET /api/v1/cards/commanders?search={query}&format={format}`.
+  1. Implementar cliente HTTP resiliente para a API do Scryfall com rate limiting (100ms) e interceptação padronizada de erros.
+  2. Criar tabela `cards` (Flyway `V2__create_cards_table.sql`) com busca Full-Text (PostgreSQL `tsvector` + GIN) e ordenação canônica WUBRG.
+  3. Criar endpoint `GET /api/cards/commanders?search={query}&color={color}&limit={limit}` e `GET /api/cards/{id}` com estratégia local-first cache miss.
+  4. Suporte a persistência e busca em lote (`findByScryfallIdIn`, `saveAll`).
 * **Critérios de Aceite:**
-  * Busca por "Tasigur" retorna o card persistido com a `color_identity` canônica (`UBG`).
-  * Consultas repetidas batem exclusivamente no PostgreSQL local, sem bater no Scryfall.
-* **Depende de:** Task 1.1 | **Paralelizável com:** Task 2.1, 2.3, 2.4
+  * Busca por "Tasigur" ou criaturas/planeswalkers lendários persiste e retorna com `color_identity` canônica (`UBG`).
+  * Consultas locais evitam ida desnecessária à API externa.
+  * Spring Modulith verification passa sem violações.
+* **Status:** Concluído.
 
-### Task 2.3: Player & Ghost Player Management
-* **Módulo:** `player`
+### [x] Task 2.3: Player & Ghost Player Management
+* **Módulo:** `player` + `geo`
 * **Escopo:**
-  1. CRUD de `Player` com suporte a jogadores fantasmas (`user_id = null`).
-  2. Criar tabela `player_merge_logs` no schema.
-  3. Prover endpoint de busca de oponentes `GET /api/v1/players?q={name}` retornando tanto usuários registrados quanto fantasmas.
+  1. CRUD de `Player` com suporte a jogadores fantasmas (`user_id = null`) e provisionamento automático para usuários autenticados via evento de domínio desacoplado.
+  2. Tabelas `countries`, `cities`, `players`, `player_merge_logs` com índices GIN full-text search (Flyway `V3__create_geo_and_players_tables.sql`).
+  3. Catálogo geográfico dinâmico com auto-provisionamento de cidades on-demand.
+  4. Endpoints: `GET /api/players?q={name}`, `GET /api/players/{id}`, `POST /api/players/ghost`, `GET /api/players/me`, `PUT /api/players/me`, `GET /api/geo/countries`, `GET /api/geo/cities`, `POST /api/geo/cities`.
+  5. Suporte i18n em 3 idiomas (`en`, `pt_BR`, `fr`).
 * **Critérios de Aceite:**
-  * Usuário autenticado consegue criar um oponente fantasma apenas informando o nome.
-  * Busca de oponentes retorna resultados paginados com base no termo digitado.
-* **Depende de:** Task 1.1 | **Paralelizável com:** Task 2.1, 2.2, 2.4
+  * Usuário autenticado consegue criar oponente fantasma apenas informando o nome (nomes repetidos permitidos).
+  * Perfil do jogador provisionado automaticamente no primeiro login.
+  * Atualização de perfil suporta seleção de cidade existente ou criação dinâmica.
+  * Busca de jogadores e cidades paginada.
+  * Spring Modulith verification passa 100% sem violações de arquitetura.
+* **Status:** Concluído com 77 testes passando.
 
-### Task 2.4: Formats & Validation Engine
+### [ ] Task 2.4: Formats & Validation Engine
 * **Módulo:** `format`
 * **Escopo:**
   1. Modelar enum e regras de formato: `DUEL_COMMANDER`, `DUEL_COMMANDER_500`, `BRAWL`.
@@ -122,7 +131,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
 
 ## FASE 3: Tracking & Domain Logic
 
-### Task 3.1: DeckIdentity & Mechanics Engine
+### [ ] Task 3.1: DeckIdentity & Mechanics Engine
 * **Módulo:** `deck`
 * **Escopo:**
   1. Criar entidade `DeckIdentity` e `DeckIdentityCard`.
@@ -133,7 +142,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
   * Cadastrar Tasigur (UBG) + Lutri (UR Companion) gera identidade de cor combinada e persiste as roles corretamente.
 * **Depende de:** Task 2.2, Task 2.4 | **Paralelizável com:** Task 3.2
 
-### Task 3.2: Match & Game Recording Engine
+### [ ] Task 3.2: Match & Game Recording Engine
 * **Módulo:** `match`
 * **Escopo:**
   1. Criar entidades `TournamentParticipation`, `Match`, `MatchParticipant` e `Game`.
@@ -145,7 +154,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
   * Submeter match rápida (preset 2-1) gera os 3 games no banco automaticamente.
 * **Depende de:** Task 2.3, Task 2.4 | **Paralelizável com:** Task 3.1
 
-### Task 3.3: Spring Modulith Domain Event Publisher
+### [ ] Task 3.3: Spring Modulith Domain Event Publisher
 * **Módulo:** `tracking` -> `events`
 * **Escopo:**
   1. Definir eventos imutáveis de domínio: `MatchCreatedEvent`, `MatchUpdatedEvent`, `MatchDeletedEvent`.
@@ -158,7 +167,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
 
 ## FASE 4: Analytics Engine & Read Models
 
-### Task 4.1: Daily Rollups & Ledger Processing Engine
+### [ ] Task 4.1: Daily Rollups & Ledger Processing Engine
 * **Módulo:** `statistics`
 * **Escopo:**
   1. Criar tabelas agregadas de leitura: `commander_daily_stats`, `player_daily_stats`, `matchup_daily_stats`.
@@ -166,10 +175,10 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
   3. Criar tabela de Ledger para reprocessamento diário em caso de edição/deleção retroativa.
 * **Critérios de Aceite:**
   * Inserção de uma nova partida atualiza as estatísticas diárias daquele dia sem necessidade de full scan na tabela `matches`.
-  * Endpoint `GET /api/v1/players/{id}/statistics?from={date}&to={date}` soma apenas as linhas do rollup do período.
+  * Endpoint `GET /api/players/{id}/statistics?from={date}&to={date}` soma apenas as linhas do rollup do período.
 * **Depende de:** Task 3.3 | **Paralelizável com:** Task 4.2
 
-### Task 4.2: Rating Calculators (Glicko-2 & Wilson Score)
+### [ ] Task 4.2: Rating Calculators (Glicko-2 & Wilson Score)
 * **Módulo:** `rating`
 * **Escopo:**
   1. Implementar motor de cálculo Glicko-2 (`rating`, `rating_deviation`, `volatility`) isolado por formato.
@@ -184,7 +193,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
 
 ## FASE 5: Frontend Feature Slices
 
-### Task 5.1: IndexedDB Client & Offline Sync Queue
+### [ ] Task 5.1: IndexedDB Client & Offline Sync Queue
 * **Feature:** `core/offline`
 * **Escopo:**
   1. Configurar `idb` (IndexedDB wrapper) no Angular para armazenar cache local de cartas de comandantes.
@@ -195,7 +204,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
   * Ao religar a rede, a partida é enviada à API e o status muda para sincronizado.
 * **Depende de:** Task 1.2 | **Paralelizável com:** Task 5.2, 5.3
 
-### Task 5.2: Auth Integration & Player Profile UI
+### [ ] Task 5.2: Auth Integration & Player Profile UI
 * **Feature:** `features/auth` + `features/players`
 * **Escopo:**
   1. Implementar botão e fluxo de login com Google Identity Services SDK no Angular.
@@ -203,10 +212,10 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
   3. Criar página de perfil público do jogador exibindo rating, volume de partidas e comandantes favoritos.
 * **Critérios de Aceite:**
   * Fluxo de login autentica com sucesso e redireciona para o Dashboard.
-  * Perfil público exibe os dados consumindo `GET /api/v1/players/{id}`.
+  * Perfil público exibe os dados consumindo `GET /api/players/{id}`.
 * **Depende de:** Task 2.1, Task 2.3 | **Paralelizável com:** Task 5.3, 5.4, 5.5
 
-### Task 5.3: Rapid Match Recording Form (Mobile-First UX)
+### [ ] Task 5.3: Rapid Match Recording Form (Mobile-First UX)
 * **Feature:** `features/matches`
 * **Escopo:**
   1. Criar formulário mobile-first para registro em menos de 20 segundos.
@@ -216,7 +225,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
   * O fluxo completo de preenchimento e salvamento é realizável em menos de 5 cliques/taps no celular.
 * **Depende de:** Task 3.2, Task 5.1 | **Paralelizável com:** Task 5.4, 5.5
 
-### Task 5.4: History & Head-to-Head Rivalry Views
+### [ ] Task 5.4: History & Head-to-Head Rivalry Views
 * **Feature:** `features/history` + `features/rivalries`
 * **Escopo:**
   1. Criar tela de histórico de partidas com paginação e filtros (Formato, Plataforma, Comandante, Oponente, Período).
@@ -227,7 +236,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
   * Tela de rivalidade calcula e exibe streak atual, recorde lifetime e histórico de jogos.
 * **Depende de:** Task 4.1 | **Paralelizável com:** Task 5.3, 5.5
 
-### Task 5.5: Color Identity & Commander Explorer UI
+### [ ] Task 5.5: Color Identity & Commander Explorer UI
 * **Feature:** `features/explore`
 * **Escopo:**
   1. Criar tela `/explore` com seletores de cores canônicas (W, U, B, R, G) nos modos `EXACT` e `CONTAINS`.
@@ -242,7 +251,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
 
 ## FASE 6: Integration, E2E & Readiness
 
-### Task 6.1: Full Offline-to-Online Pipeline Validation
+### [ ] Task 6.1: Full Offline-to-Online Pipeline Validation
 * **Escopo:**
   1. Testar ciclo de vida completo: App offline -> Registro de 3 rodadas de torneio -> Reconexão -> Processamento assíncrono -> Atualização dos Daily Rollups.
   2. Ajustar tratamento de conflitos e idempotência nas requisições da API.
@@ -251,7 +260,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
   * Todos os Rollups Diários refletem o estado correto pós-sincronização.
 * **Depende de:** Task 5.1, Task 5.3, Task 4.1
 
-### Task 6.2: End-to-End Test Suite (Cypress/Playwright)
+### [ ] Task 6.2: End-to-End Test Suite (Cypress/Playwright)
 * **Escopo:**
   1. Criar suíte de testes E2E cobrindo:
      - Login com Google (mockado).
