@@ -62,7 +62,7 @@ class CreateGhostPlayerUseCaseTest {
     @Test
     void shouldCreateGhostPlayerWithCity() {
         var cityId = UUID.randomUUID();
-        var city = City.create(Country.create("BR", "Brazil"), "São Paulo", "SP");
+        var city = City.create(Country.create("BR", "Brazil"), "São Paulo");
         var input = new CreateGhostPlayerInput("Ghost Oponente", "Ghost", "mtgo_ghost", "arena_ghost", cityId);
 
         when(geoApi.findCityById(cityId)).thenReturn(Optional.of(city));

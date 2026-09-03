@@ -34,8 +34,8 @@ public class GeoApi {
         return searchCitiesUseCase.execute(new SearchCitiesInput(countryCode, query, pageable));
     }
 
-    public City getOrCreateCity(String countryCode, String name, String stateProvince) {
-        return getOrCreateCityUseCase.execute(new GetOrCreateCityInput(countryCode, name, stateProvince));
+    public City getOrCreateCity(String countryCode, String name) {
+        return getOrCreateCityUseCase.execute(new GetOrCreateCityInput(countryCode, name));
     }
 
     public Optional<City> findCityById(UUID id) {

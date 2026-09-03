@@ -11,8 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
-
 @Service
 @RequiredArgsConstructor
 public class GetOrCreateCityUseCase implements UseCase<GetOrCreateCityInput, City> {
@@ -29,12 +27,11 @@ public class GetOrCreateCityUseCase implements UseCase<GetOrCreateCityInput, Cit
 
         String countryCode = input.countryCode().toUpperCase();
         String name = input.name();
-        String stateProvince = Objects.nonNull(input.stateProvince()) ? input.stateProvince().toUpperCase() : null;
 
         Country country = countryRepository.findById(countryCode)
                 .orElseThrow(() -> new EntityNotFoundException("problem.countryNotFound.detail", countryCode));
 
-        return cityRepository.findByCountryCodeAndNameAndStateProvinceIgnoreCase(countryCode, name, stateProvince)
-                .orElseGet(() -> cityRepository.save(City.create(country, name, stateProvince)));
+        return cityRepository.findByCountryCodeAndNameIgnoreCase(countryCode, name)
+                .orElseGet(() -> cityRepository.save(City.create(country, name)));
     }
 }

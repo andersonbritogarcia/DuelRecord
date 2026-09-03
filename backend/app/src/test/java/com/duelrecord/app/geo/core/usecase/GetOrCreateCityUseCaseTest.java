@@ -41,19 +41,19 @@ class GetOrCreateCityUseCaseTest {
 
     @Test
     void shouldThrowWhenCountryCodeIsBlank() {
-        var input = new GetOrCreateCityInput("", "City", "ST");
+        var input = new GetOrCreateCityInput("", "City");
         assertThrows(BusinessException.class, () -> useCase.execute(input));
     }
 
     @Test
     void shouldThrowWhenCityNameIsBlank() {
-        var input = new GetOrCreateCityInput("BR", "", "ST");
+        var input = new GetOrCreateCityInput("BR", "");
         assertThrows(BusinessException.class, () -> useCase.execute(input));
     }
 
     @Test
     void shouldThrowWhenCountryNotFound() {
-        var input = new GetOrCreateCityInput("XX", "Unknown", "ST");
+        var input = new GetOrCreateCityInput("XX", "Unknown");
         when(countryRepository.findById("XX")).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class, () -> useCase.execute(input));
@@ -62,11 +62,11 @@ class GetOrCreateCityUseCaseTest {
     @Test
     void shouldReturnExistingCityWhenFound() {
         var country = Country.create("BR", "Brazil");
-        var existingCity = City.create(country, "Campinas", "SP");
-        var input = new GetOrCreateCityInput("br", "campinas", "sp");
+        var existingCity = City.create(country, "Campinas");
+        var input = new GetOrCreateCityInput("br", "campinas");
 
         when(countryRepository.findById("BR")).thenReturn(Optional.of(country));
-        when(cityRepository.findByCountryCodeAndNameAndStateProvinceIgnoreCase("BR", "campinas", "SP"))
+        when(cityRepository.findByCountryCodeAndNameIgnoreCase("BR", "campinas"))
                 .thenReturn(Optional.of(existingCity));
 
         var result = useCase.execute(input);
@@ -78,10 +78,10 @@ class GetOrCreateCityUseCaseTest {
     @Test
     void shouldCreateNewCityWhenNotFound() {
         var country = Country.create("BR", "Brazil");
-        var input = new GetOrCreateCityInput("BR", "Sorocaba", "SP");
+        var input = new GetOrCreateCityInput("BR", "Sorocaba");
 
         when(countryRepository.findById("BR")).thenReturn(Optional.of(country));
-        when(cityRepository.findByCountryCodeAndNameAndStateProvinceIgnoreCase("BR", "Sorocaba", "SP"))
+        when(cityRepository.findByCountryCodeAndNameIgnoreCase("BR", "Sorocaba"))
                 .thenReturn(Optional.empty());
         when(cityRepository.save(any(City.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -89,7 +89,6 @@ class GetOrCreateCityUseCaseTest {
 
         assertNotNull(result);
         assertEquals("Sorocaba", result.getName());
-        assertEquals("SP", result.getStateProvince());
         assertEquals("BR", result.getCountry().getCode());
         verify(cityRepository).save(any(City.class));
     }

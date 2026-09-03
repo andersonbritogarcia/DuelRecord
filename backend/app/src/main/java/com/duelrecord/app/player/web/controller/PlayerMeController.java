@@ -55,8 +55,7 @@ public class PlayerMeController {
                 request.arenaUsername(),
                 request.cityId(),
                 request.newCountryCode(),
-                request.newCityName(),
-                request.newStateProvince()
+                request.newCityName()
         ));
         return PlayerResponse.fromDomain(updated);
     }

@@ -10,9 +10,6 @@ public record CreateCityRequest(
 
         @NotBlank(message = "{validation.cityName.notBlank}")
         @Size(max = 100, message = "{validation.cityName.size}")
-        String name,
-
-        @Size(max = 50, message = "{validation.stateProvince.size}")
-        String stateProvince
+        String name
 ) {
 }

@@ -8,6 +8,5 @@ public record UpdatePlayerProfileInput(UUID userId,
                                        String arenaUsername,
                                        UUID cityId,
                                        String newCountryCode,
-                                       String newCityName,
-                                       String newStateProvince) {
+                                       String newCityName) {
 }

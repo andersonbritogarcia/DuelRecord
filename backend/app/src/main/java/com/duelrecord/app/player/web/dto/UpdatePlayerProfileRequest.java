@@ -20,9 +20,6 @@ public record UpdatePlayerProfileRequest(
         String newCountryCode,
 
         @Size(max = 100, message = "{validation.cityName.size}")
-        String newCityName,
-
-        @Size(max = 50, message = "{validation.stateProvince.size}")
-        String newStateProvince
+        String newCityName
 ) {
 }

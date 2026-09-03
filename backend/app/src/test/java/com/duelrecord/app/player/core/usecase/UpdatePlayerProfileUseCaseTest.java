@@ -36,7 +36,7 @@ class UpdatePlayerProfileUseCaseTest {
     @Test
     void shouldThrowWhenPlayerNotFound() {
         var userId = UUID.randomUUID();
-        var input = new UpdatePlayerProfileInput(userId, "New Name", null, null, null, null, null, null);
+        var input = new UpdatePlayerProfileInput(userId, "New Name", null, null, null, null, null);
 
         when(playerRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
@@ -47,9 +47,9 @@ class UpdatePlayerProfileUseCaseTest {
     void shouldUpdateProfileWithExistingCityId() {
         var userId = UUID.randomUUID();
         var cityId = UUID.randomUUID();
-        var city = City.create(Country.create("BR", "Brazil"), "Brasília", "DF");
+        var city = City.create(Country.create("BR", "Brazil"), "Brasília");
         var player = Player.createRegistered(userId, "Original Name", "Original");
-        var input = new UpdatePlayerProfileInput(userId, "Updated Nick", "mtgo_user", "arena_user", cityId, null, null, null);
+        var input = new UpdatePlayerProfileInput(userId, "Updated Nick", "mtgo_user", "arena_user", cityId, null, null);
 
         when(playerRepository.findByUserId(userId)).thenReturn(Optional.of(player));
         when(geoApi.findCityById(cityId)).thenReturn(Optional.of(city));
@@ -67,12 +67,12 @@ class UpdatePlayerProfileUseCaseTest {
     @Test
     void shouldUpdateProfileWithNewDynamicCity() {
         var userId = UUID.randomUUID();
-        var city = City.create(Country.create("BR", "Brazil"), "Manaus", "AM");
+        var city = City.create(Country.create("BR", "Brazil"), "Manaus");
         var player = Player.createRegistered(userId, "Original Name", "Original");
-        var input = new UpdatePlayerProfileInput(userId, "Updated Nick", "mtgo_user", null, null, "BR", "Manaus", "AM");
+        var input = new UpdatePlayerProfileInput(userId, "Updated Nick", "mtgo_user", null, null, "BR", "Manaus");
 
         when(playerRepository.findByUserId(userId)).thenReturn(Optional.of(player));
-        when(geoApi.getOrCreateCity("BR", "Manaus", "AM")).thenReturn(city);
+        when(geoApi.getOrCreateCity("BR", "Manaus")).thenReturn(city);
         when(playerRepository.save(any(Player.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         var result = useCase.execute(input);

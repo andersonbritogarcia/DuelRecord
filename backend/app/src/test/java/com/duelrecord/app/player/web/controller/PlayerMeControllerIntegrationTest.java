@@ -125,8 +125,7 @@ class PlayerMeControllerIntegrationTest {
                     "mtgoUsername": "pilot_mtgo",
                     "arenaUsername": "pilot_arena",
                     "newCountryCode": "BR",
-                    "newCityName": "Campinas",
-                    "newStateProvince": "SP"
+                    "newCityName": "Campinas"
                 }
                 """;
 
@@ -143,7 +142,6 @@ class PlayerMeControllerIntegrationTest {
                 .andExpect(jsonPath("$.mtgoUsername").value("pilot_mtgo"))
                 .andExpect(jsonPath("$.arenaUsername").value("pilot_arena"))
                 .andExpect(jsonPath("$.city.name").value("Campinas"))
-                .andExpect(jsonPath("$.city.stateProvince").value("SP"))
                 .andExpect(jsonPath("$.city.country.code").value("BR"));
 
         var updated = playerRepository.findAll().get(0);

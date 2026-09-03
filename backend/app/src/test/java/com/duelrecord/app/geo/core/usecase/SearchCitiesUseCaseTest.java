@@ -29,7 +29,7 @@ class SearchCitiesUseCaseTest {
     void shouldSearchCitiesWithPagination() {
         var pageable = PageRequest.of(0, 10);
         var country = Country.create("BR", "Brazil");
-        var city = City.create(country, "São Paulo", "SP");
+        var city = City.create(country, "São Paulo");
         var page = new PageImpl<>(List.of(city), pageable, 1);
 
         when(cityRepository.search("BR", "São", pageable)).thenReturn(page);

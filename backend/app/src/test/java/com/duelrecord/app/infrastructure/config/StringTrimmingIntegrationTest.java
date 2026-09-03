@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -62,12 +61,11 @@ class StringTrimmingIntegrationTest {
     }
 
     @Test
-    void shouldTrimWhitespaceAndConvertBlankOptionalFieldsToNullInRequestBody() throws Exception {
+    void shouldTrimWhitespaceInRequestBody() throws Exception {
         String payload = """
                 {
                     "countryCode": " BR ",
-                    "name": "  Campinas  ",
-                    "stateProvince": "   "
+                    "name": "  Campinas  "
                 }
                 """;
 
@@ -75,11 +73,9 @@ class StringTrimmingIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name").value("Campinas"))
-                .andExpect(jsonPath("$.stateProvince").doesNotExist());
+                .andExpect(jsonPath("$.name").value("Campinas"));
 
         var created = cityRepository.findAll().get(0);
         assertEquals("Campinas", created.getName());
-        assertNull(created.getStateProvince());
     }
 }

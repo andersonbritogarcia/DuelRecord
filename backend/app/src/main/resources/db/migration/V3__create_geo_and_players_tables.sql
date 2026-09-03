@@ -8,13 +8,12 @@ CREATE TABLE cities (
     id UUID PRIMARY KEY,
     country_code VARCHAR(2) NOT NULL,
     name VARCHAR(100) NOT NULL,
-    state_province VARCHAR(50) NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_cities_country FOREIGN KEY (country_code) REFERENCES countries(code) ON DELETE RESTRICT
 );
 
-CREATE UNIQUE INDEX uk_cities_country_name_state ON cities (country_code, LOWER(name), coalesce(LOWER(state_province), ''));
+CREATE UNIQUE INDEX uk_cities_country_name ON cities (country_code, LOWER(name));
 CREATE INDEX idx_cities_country_code ON cities(country_code);
 CREATE INDEX idx_cities_name ON cities(name);
 
@@ -95,21 +94,21 @@ INSERT INTO countries (code, name) VALUES
 ON CONFLICT (code) DO NOTHING;
 
 -- Seed Major Hub Cities
-INSERT INTO cities (id, country_code, name, state_province) VALUES
-('01a0649f-32c7-72c6-ba18-31bb8bd61abb', 'BR', 'São Paulo', 'SP'),
-('01a0649f-32c7-72c6-ba18-36d8875da579', 'BR', 'Rio de Janeiro', 'RJ'),
-('01a0649f-32c7-72c6-ba18-38da94784f3e', 'BR', 'Curitiba', 'PR'),
-('01a0649f-32c7-72c6-ba18-3ee037a9e23a', 'BR', 'Belo Horizonte', 'MG'),
-('01a0649f-32c7-72c6-ba18-43c5622a4bc6', 'BR', 'Brasília', 'DF'),
-('01a0649f-f170-739e-88db-72ff391e26d2', 'BR', 'Porto Alegre', 'RS'),
-('01a0649f-f170-739e-88db-74cb44b6c073', 'BR', 'Campinas', 'SP'),
-('01a0649f-f170-739e-88db-7aa7fea590a5', 'BR', 'Fortaleza', 'CE'),
-('01a0649f-f170-739e-88db-7dac95bbf507', 'BR', 'Recife', 'PE'),
-('01a0649f-f170-739e-88db-81254fe112c2', 'BR', 'Salvador', 'BA'),
-('01a064a0-666b-776f-8e5f-598bb61f88ea', 'FR', 'Paris', 'IDF'),
-('01a064a0-666b-776f-8e5f-5cc4a6d7930c', 'FR', 'Lyon', 'ARA'),
-('01a064a0-666b-776f-8e5f-61a1c55c08f8', 'US', 'New York', 'NY'),
-('01a064a0-666b-776f-8e5f-64c043bd13a9', 'US', 'Los Angeles', 'CA'),
-('01a064a0-666b-776f-8e5f-68c4f175c5c6', 'US', 'Seattle', 'WA'),
-('01a064a0-666b-776f-8e5f-6c006bc16abf', 'BR', 'Maringá', 'PR')
+INSERT INTO cities (id, country_code, name) VALUES
+('019544e3-3f62-7200-8000-000000000001', 'BR', 'São Paulo'),
+('019544e3-3f62-7200-8000-000000000002', 'BR', 'Rio de Janeiro'),
+('019544e3-3f62-7200-8000-000000000003', 'BR', 'Curitiba'),
+('019544e3-3f62-7200-8000-000000000004', 'BR', 'Belo Horizonte'),
+('019544e3-3f62-7200-8000-000000000005', 'BR', 'Brasília'),
+('019544e3-3f62-7200-8000-000000000006', 'BR', 'Porto Alegre'),
+('019544e3-3f62-7200-8000-000000000007', 'BR', 'Campinas'),
+('019544e3-3f62-7200-8000-000000000008', 'BR', 'Fortaleza'),
+('019544e3-3f62-7200-8000-000000000009', 'BR', 'Recife'),
+('019544e3-3f62-7200-8000-00000000000a', 'BR', 'Salvador'),
+('019544e3-3f62-7200-8000-00000000000b', 'FR', 'Paris'),
+('019544e3-3f62-7200-8000-00000000000c', 'FR', 'Lyon'),
+('019544e3-3f62-7200-8000-00000000000d', 'US', 'New York'),
+('019544e3-3f62-7200-8000-00000000000e', 'US', 'Los Angeles'),
+('019544e3-3f62-7200-8000-00000000000f', 'US', 'Seattle'),
+('019544e3-3f62-7200-8000-000000000010', 'BR', 'Maringá')
 ON CONFLICT DO NOTHING;

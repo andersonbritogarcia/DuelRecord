@@ -37,30 +37,25 @@ public class City {
     @Column(name = "name", nullable = false, length = 100)
     private String name;
 
-    @Column(name = "state_province", length = 50)
-    private String stateProvince;
-
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    public static City create(Country country, String name, String stateProvince) {
+    public static City create(Country country, String name) {
         Instant now = Instant.now();
         return City.builder()
                 .id(Generators.timeBasedEpochGenerator().generate())
                 .country(country)
                 .name(name)
-                .stateProvince(stateProvince)
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
     }
 
-    public void update(String name, String stateProvince) {
+    public void update(String name) {
         this.name = name != null ? name : this.name;
-        this.stateProvince = stateProvince;
         this.updatedAt = Instant.now();
     }
 }

@@ -79,8 +79,7 @@ class GeoControllerIntegrationTest {
         String payload = """
                 {
                     "countryCode": "BR",
-                    "name": "São José dos Campos",
-                    "stateProvince": "SP"
+                    "name": "São José dos Campos"
                 }
                 """;
 
@@ -90,7 +89,6 @@ class GeoControllerIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.name").value("São José dos Campos"))
-                .andExpect(jsonPath("$.stateProvince").value("SP"))
                 .andExpect(jsonPath("$.country.code").value("BR"));
 
         assertEquals(1, cityRepository.count());
@@ -118,8 +116,7 @@ class GeoControllerIntegrationTest {
         String payload = """
                 {
                     "countryCode": "XX",
-                    "name": "Unknown City",
-                    "stateProvince": "ZZ"
+                    "name": "Unknown City"
                 }
                 """;
 

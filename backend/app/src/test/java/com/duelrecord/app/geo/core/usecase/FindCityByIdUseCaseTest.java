@@ -33,7 +33,7 @@ class FindCityByIdUseCaseTest {
     @Test
     void shouldReturnCityWhenFound() {
         var id = UUID.randomUUID();
-        var city = City.create(Country.create("BR", "Brazil"), "Recife", "PE");
+        var city = City.create(Country.create("BR", "Brazil"), "Recife");
 
         when(cityRepository.findById(id)).thenReturn(Optional.of(city));
 

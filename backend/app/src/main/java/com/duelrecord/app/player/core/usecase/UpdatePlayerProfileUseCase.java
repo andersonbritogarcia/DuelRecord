@@ -27,15 +27,15 @@ public class UpdatePlayerProfileUseCase implements UseCase<UpdatePlayerProfileIn
         ValidationUtils.requireNonNull(input.userId(), "problem.invalidUserId.detail");
 
         Player player = playerRepository.findByUserId(input.userId())
-                                        .orElseThrow(() -> new EntityNotFoundException("problem.playerNotFound.detail", input.userId()));
+                .orElseThrow(() -> new EntityNotFoundException("problem.playerNotFound.detail", input.userId()));
 
         City city = player.getCity();
 
         if (Objects.nonNull(input.newCountryCode()) && Objects.nonNull(input.newCityName())) {
-            city = geoApi.getOrCreateCity(input.newCountryCode(), input.newCityName(), input.newStateProvince());
+            city = geoApi.getOrCreateCity(input.newCountryCode(), input.newCityName());
         } else if (Objects.nonNull(input.cityId())) {
             city = geoApi.findCityById(input.cityId())
-                         .orElseThrow(() -> new EntityNotFoundException("problem.cityNotFound.detail", input.cityId()));
+                    .orElseThrow(() -> new EntityNotFoundException("problem.cityNotFound.detail", input.cityId()));
         }
 
         player.updateProfile(input.displayName(), input.mtgoUsername(), input.arenaUsername(), city);

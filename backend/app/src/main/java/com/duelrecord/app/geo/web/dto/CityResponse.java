@@ -4,7 +4,7 @@ import com.duelrecord.app.geo.persistence.model.City;
 
 import java.util.UUID;
 
-public record CityResponse(UUID id, CountryResponse country, String name, String stateProvince) {
+public record CityResponse(UUID id, CountryResponse country, String name) {
 
     public static CityResponse fromDomain(City city) {
         if (city == null) {
@@ -13,8 +13,7 @@ public record CityResponse(UUID id, CountryResponse country, String name, String
         return new CityResponse(
                 city.getId(),
                 CountryResponse.fromDomain(city.getCountry()),
-                city.getName(),
-                city.getStateProvince()
+                city.getName()
         );
     }
 }
