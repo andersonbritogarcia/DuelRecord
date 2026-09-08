@@ -37,7 +37,12 @@ frontend/public/runtime-config.json
 .DS_Store
 Thumbs.db
 
-# Design and artifact scratch files
+# Agent skills and lock files
+.agents/
+skills-lock.json
+
+# Design, audit and artifact scratch files
 .design/
+**/premium-audit.json
 /*.jpg
 /*.png
