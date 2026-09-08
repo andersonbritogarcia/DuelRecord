@@ -8,38 +8,38 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
 
 ```text
 [FASE 1: Setup & Foundations]
-  ├── Task 1.1 (Docker / DB / Flyway) ──┐
-  └── Task 1.2 (Angular Base + PWA)    │
+  ├─── Task 1.1 (Docker / DB / Flyway) ──┐
+  └─── Task 1.2 (Angular Base + PWA)    │
                                        ▼
                      [FASE 2: Backend Core Modules]
-                       ├── Task 2.1 (Security & Auth) 
-                       ├── Task 2.2 (Card & Scryfall Module)
-                       ├── Task 2.3 (Player & Identity Module)
-                       └── Task 2.4 (Format Rules Engine)
+                       ├─── Task 2.1 (Security & Auth) 
+                       ├─── Task 2.2 (Card & Scryfall Module)
+                       ├─── Task 2.3 (Player & Identity Module)
+                       └─── Task 2.4 (Format Rules Engine)
                                        │
                                        ▼
                      [FASE 3: Tracking & Domain Logic]
-                       ├── Task 3.1 (DeckIdentity & Mechanics)
-                       ├── Task 3.2 (Match, Game & Participant Tracking)
-                       └── Task 3.3 (Spring Modulith Event Dispatcher)
+                       ├─── Task 3.1 (DeckIdentity & Mechanics)
+                       ├─── Task 3.2 (Match, Game & Participant Tracking)
+                       └─── Task 3.3 (Spring Modulith Event Dispatcher)
                                        │
                                        ▼
                      [FASE 4: Analytics Engine & Read Models]
-                       ├── Task 4.1 (Daily Rollups & Ledger Processing)
-                       └── Task 4.2 (Glicko-2 & Wilson Score Calculators)
+                       ├─── Task 4.1 (Daily Rollups & Ledger Processing)
+                       └─── Task 4.2 (Glicko-2 & Wilson Score Calculators)
                                        │
                                        ▼
                      [FASE 5: Frontend Feature Slices]
-                       ├── Task 5.1 (PWA Offline Store / IndexedDB Cache)
-                       ├── Task 5.2 (Auth & Profile UI)
-                       ├── Task 5.3 (Fast Match Entry Form / Mobile UI)
-                       ├── Task 5.4 (History & Rivalry View)
-                       └── Task 5.5 (Color & Commander Explorer)
+                       ├─── Task 5.1 (PWA Offline Store / IndexedDB Cache)
+                       ├─── Task 5.2 (Auth & Profile UI)
+                       ├─── Task 5.3 (Fast Match Entry Form / Mobile UI)
+                       ├─── Task 5.4 (History & Rivalry View)
+                       └─── Task 5.5 (Color & Commander Explorer)
                                        │
                                        ▼
                      [FASE 6: Integration, E2E & Readiness]
-                       ├── Task 6.1 (Sync Worker & Offline Pipeline)
-                       └── Task 6.2 (End-to-End Test Suite & Smoke Testing)
+                       ├─── Task 6.1 (Sync Worker & Offline Pipeline)
+                       └─── Task 6.2 (End-to-End Test Suite & Smoke Testing)
 ```
 
 ---
@@ -82,7 +82,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
   4. Suporte a internacionalização (i18n) em 3 idiomas (`en`, `pt_BR`, `fr`).
 * **Critérios de Aceite:**
   * Requisição com Bearer Token mockado do Google cria/recupera o registro no banco.
-  * Chamadas sem token retornam `401 Unauthorized`.
+  * Chamadas sem token retornam `401 Unauthorized` .
   * Testes de integração e unitários passam com 100% de sucesso.
 * **Status:** Concluído.
 
@@ -115,8 +115,8 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
   * Spring Modulith verification passa 100% sem violações de arquitetura.
 * **Status:** Concluído com 77 testes passando.
 
-### [ ] Task 2.4: Formats & Validation Engine
-* **Módulo:** `format`
+### [x] Task 2.4: Formats & Validation Engine
+* **Módulo:** `format` / `match.validator`
 * **Escopo:**
   1. Modelar enum e regras de formato: `DUEL_COMMANDER`, `DUEL_COMMANDER_500`, `BRAWL`.
   2. Implementar `FormatRulesValidator`:
@@ -125,42 +125,49 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
 * **Critérios de Aceite:**
   * Teste unitário rejeita submissão de match de Brawl com plataforma `PAPER`.
   * Teste unitário rejeita submissão de match de DC500 com BO1 por padrão, a menos que explicitado.
-* **Depende de:** Task 1.1 | **Paralelizável com:** Task 2.1, 2.2, 2.3
+* **Status:** Concluído com 100% de testes unitários verdes.
 
 ---
 
 ## FASE 3: Tracking & Domain Logic
 
-### [ ] Task 3.1: DeckIdentity & Mechanics Engine
-* **Módulo:** `deck`
+### [x] Task 3.1: DeckIdentity & Mechanics Engine
+* **Módulo:** `match` (base / deck identity)
 * **Escopo:**
-  1. Criar entidade `DeckIdentity` e `DeckIdentityCard`.
+  1. Criar entidades `DeckIdentity` e `DeckIdentityCard`.
   2. Suportar papéis: `COMMANDER`, `PARTNER`, `COMPANION`, `BACKGROUND`.
-  3. Implementar algoritmo de união de identidade de cor (ex: W + UB = WUB).
+  3. Implementar algoritmo de união de identidade de cor (ex: W + UB = WUB; incolor = "C").
+  4. Deduplicação determinística via SHA-256 `signature` canônica.
+  5. Modelar enums base do módulo `match`: `DeckCardRole`, `GameFormat`, `Platform`, `MatchStructure`.
 * **Critérios de Aceite:**
-  * Cadastrar Yoshimaru (W) + Kraum (UR) gera um `DeckIdentity` com `color_identity = WUR`.
+  * Cadastrar Yoshimaru (W) + Kraum (UR) gera um `DeckIdentity` com `color_identity = WUR` .
   * Cadastrar Tasigur (UBG) + Lutri (UR Companion) gera identidade de cor combinada e persiste as roles corretamente.
-* **Depende de:** Task 2.2, Task 2.4 | **Paralelizável com:** Task 3.2
+  * Cadastrar deck incolor resulta em `color_identity = C`.
+  * Submissão idêntica reutiliza a `DeckIdentity` existente.
+* **Status:** Concluído com 102 testes passando e verificação Modulith 100% verde.
 
-### [ ] Task 3.2: Match & Game Recording Engine
+### [x] Task 3.2: Match & Game Recording Engine
 * **Módulo:** `match`
 * **Escopo:**
   1. Criar entidades `TournamentParticipation`, `Match`, `MatchParticipant` e `Game`.
   2. Implementar cálculo automático de resultado da partida no backend (WIN/LOSS/DRAW) baseado nos `Game` registrados.
-  3. Suportar flag `verification_status` (`UNVERIFIED` vs `VERIFIED`).
-  4. Garantir que `display_name_snapshot` seja gravado no momento do registro.
+  3. Suporte a empates 0-0 (Intentional Draw sem games e empates por tempo com games disputados).
+  4. Suportar flag `verification_status` (`UNVERIFIED` vs `VERIFIED`).
+  5. Garantir que `display_name_snapshot` seja gravado no momento do registro.
 * **Critérios de Aceite:**
   * Submeter games [G1: P1 win, G2: P1 win] grava a match como vitória de P1 (2-0).
   * Submeter match rápida (preset 2-1) gera os 3 games no banco automaticamente.
-* **Depende de:** Task 2.3, Task 2.4 | **Paralelizável com:** Task 3.1
+  * Submeter empate 0-0 registra resultado `DRAW` e suporta lista de games vazia (ID).
+* **Status:** Concluído com 131 testes passando e verificação Modulith 100% verde.
 
-### [ ] Task 3.3: Spring Modulith Domain Event Publisher
-* **Módulo:** `tracking` -> `events`
+### [x] Task 3.3: Spring Modulith Domain Event Publisher
+* **Módulo:** `tracking` -> `events` (`com.duelrecord.app.match`)
 * **Escopo:**
   1. Definir eventos imutáveis de domínio: `MatchCreatedEvent`, `MatchUpdatedEvent`, `MatchDeletedEvent`.
   2. Disparar eventos dentro da transação do serviço de registro de partidas.
 * **Critérios de Aceite:**
   * Teste com `@ApplicationModuleTest` confirma que o `MatchCreatedEvent` é publicado e recebido pelo listener assíncrono.
+* **Status:** Concluído com testes `@ApplicationModuleTest` e verificação arquitetural 100% verde (132 testes passando).
 * **Depende de:** Task 3.2
 
 ---
@@ -262,10 +269,10 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
 
 ### [ ] Task 6.2: End-to-End Test Suite (Cypress/Playwright)
 * **Escopo:**
-  1. Criar suíte de testes E2E cobrindo:
-     - Login com Google (mockado).
-     - Registro de Quick Match (DC 500).
-     - Validação de atualização de estatísticas na tela de Explorer.
+  1. Criar suíte de testes E2E cobrindo:\
+     - Login com Google (mockado).\
+     - Registro de Quick Match (DC 500).\
+     - Validação de atualização de estatísticas na tela de Explorer.\
      - Navegação e visualização de Rivalidade.
 * **Critérios de Aceite:**
   * Todos os fluxos críticos passam no pipeline de CI sem falhas intermitentes (flakiness).
