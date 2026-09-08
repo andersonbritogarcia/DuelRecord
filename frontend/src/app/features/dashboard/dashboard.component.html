@@ -1,0 +1,245 @@
+<div class="dashboard">
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">{{ i18n.t('perspective') }}</p>
+      <h1>{{ i18n.t('greeting', { name: 'Anderson' }) }}<span class="greeting-dot">.</span></h1>
+      <p class="page-subtitle">{{ i18n.t('subtitle') }}</p>
+    </div>
+    <div class="scope-note">
+      <span class="scope-dot" aria-hidden="true"></span>
+      <div>
+        <strong>Duel Commander</strong
+        ><span
+          >{{ i18n.t('lastDays') }} · {{ i18n.date('2026-08-10') }} –
+          {{ i18n.date('2026-09-08') }}</span
+        >
+      </div>
+    </div>
+  </div>
+  <section class="season-panel" aria-labelledby="season-title">
+    <div class="season-copy">
+      <div class="season-kicker">
+        <span class="live-dot" aria-hidden="true"></span>{{ i18n.t('moment') }}
+      </div>
+      <h2 id="season-title">
+        {{ i18n.t('heroFirst') }}<br /><span>{{ i18n.t('heroSecond') }}</span>
+      </h2>
+      <p>{{ i18n.t('heroBody') }}<br />{{ i18n.t('heroNext') }}</p>
+      <a class="primary-button" routerLink="/fast-match" queryParamsHandling="preserve"
+        ><span aria-hidden="true">＋</span>{{ i18n.t('record')
+        }}<span class="button-arrow" aria-hidden="true">↗</span></a
+      >
+      <div class="recent-streak">
+        <span>{{ i18n.t('recent') }}</span>
+        <div>
+          @for (win of streak; track $index) {
+            <span
+              [class.streak-win]="win"
+              [class.streak-loss]="!win"
+              [attr.aria-label]="i18n.t(win ? 'win' : 'loss')"
+              >{{ i18n.t(win ? 'winShort' : 'lossShort') }}</span
+            >
+          }
+        </div>
+        <strong>{{ i18n.t('next') }}</strong>
+      </div>
+    </div>
+    <div class="commander-stage">
+      <img
+        src="/art/tamiyo.jpg"
+        alt=""
+        class="hero-art"
+        fetchpriority="high"
+        width="626"
+        height="457"
+      />
+      <div class="art-shade"></div>
+      <div class="featured-label">
+        <span class="tiny-star" aria-hidden="true">✦</span>{{ i18n.t('mostPlayed') }}
+      </div>
+      <div class="featured-caption">
+        <div>
+          <span class="mana-pair" [attr.aria-label]="i18n.t('G') + ' · ' + i18n.t('U')"
+            ><i>G</i><i>U</i></span
+          >
+          <h3>Tamiyo</h3>
+          <p>Inquisitive Student</p>
+        </div>
+        <div class="featured-rate">
+          <strong>{{ i18n.percent(0.75) }}</strong
+          ><span>{{ i18n.t('winsOf', { wins: 12, matches: 16 }) }}</span>
+        </div>
+      </div>
+      <span class="art-credit">{{ i18n.t('artist', { name: 'Magali Villeneuve' }) }}</span>
+    </div>
+    <div class="season-stats">
+      <div class="stat">
+        <span>{{ i18n.t('recordLabel') }}</span
+        ><strong>21<span class="stat-separator"> / </span>11</strong
+        ><small>{{ i18n.t('wins') }} <span> / </span>{{ i18n.t('losses') }}</small>
+      </div>
+      <div class="stat">
+        <span>{{ i18n.t('winRate') }}</span
+        ><strong>{{ i18n.percent(21 / 32, 1) }}</strong
+        ><small>{{ i18n.t('matchesPeriod', { count: 32 }) }}</small>
+      </div>
+      <div class="stat rating-stat">
+        <span>{{ i18n.t('rating') }}</span
+        ><strong>{{ i18n.number(1642) }}</strong
+        ><small>{{ i18n.t('allMatches') }}</small>
+      </div>
+      <div class="stat spark-stat">
+        <span>{{ i18n.t('evolution') }}</span
+        ><svg
+          viewBox="0 0 190 45"
+          role="img"
+          [attr.aria-label]="i18n.t('ratingChart', { values: ratingValues() })"
+        >
+          <path class="spark-base" d="M0 40H190" />
+          <path class="spark-line" d="M2 38L32 30L60 35L90 19L120 24L151 9L187 3" />
+          <circle cx="187" cy="3" r="3" /></svg
+        ><small>{{
+          i18n.t('periodChange', { from: i18n.number(1560), to: i18n.number(1642) })
+        }}</small>
+      </div>
+    </div>
+  </section>
+  <div class="dashboard-grid">
+    <section class="history-panel" id="history" aria-labelledby="history-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">{{ i18n.t('historyEyebrow') }}</p>
+          <h2 id="history-title">
+            {{ i18n.t('historyTitle') }} <span class="count-label">4</span>
+          </h2>
+        </div>
+        <span class="section-aside">{{ i18n.t('sample') }}</span>
+      </div>
+      <div class="history-filters" role="group" [attr.aria-label]="i18n.t('resultFilter')">
+        @for (option of filters; track option.id) {
+          <button
+            type="button"
+            [attr.aria-pressed]="filter() === option.id"
+            (click)="filter.set(option.id)"
+          >
+            {{ i18n.t(option.label) }}
+          </button>
+        }
+      </div>
+      <div class="match-list" aria-live="polite">
+        @for (match of visibleMatches(); track match.id) {
+          <article class="match-row">
+            <img
+              [src]="'/art/' + match.art + '.jpg'"
+              alt=""
+              width="52"
+              height="58"
+              loading="lazy"
+            />
+            <div class="match-player">
+              <h3>{{ match.opponent }}</h3>
+              <p>{{ match.commander }}</p>
+              <span>{{ i18n.t('playing', { commander: match.mine }) }}</span>
+            </div>
+            <div class="match-context">
+              <strong>{{ i18n.t(match.league ? 'league' : 'standalone') }}</strong
+              ><span
+                >{{ i18n.date(match.date) }} · {{ match.paper ? i18n.t('paper') : 'MTGO' }}</span
+              >
+            </div>
+            <div class="match-result" [class.loss]="!match.win">
+              <strong>{{ match.score }}</strong
+              ><span>{{ i18n.t(match.win ? 'win' : 'loss') }}</span>
+            </div>
+          </article>
+        }
+      </div>
+      <div class="history-foot">
+        <span>{{
+          i18n.t('sampleCount', { matches: i18n.matches(visibleMatches().length), total: 4 })
+        }}</span
+        ><span>{{ i18n.t('format', { format: 'Duel Commander' }) }}</span>
+      </div>
+    </section>
+    <section class="commanders-panel" id="commanders" aria-labelledby="commanders-title">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">{{ i18n.t('commandersEyebrow') }}</p>
+          <h2 id="commanders-title">{{ i18n.t('yourCommanders') }}</h2>
+        </div>
+        <span class="section-aside">{{ i18n.matches(32) }}</span>
+      </div>
+      <div class="commander-options" role="group" [attr.aria-label]="i18n.t('selectCommander')">
+        @for (item of commanders; track item.name) {
+          <button
+            class="commander-option"
+            type="button"
+            [attr.aria-pressed]="selectedCommander() === item.name"
+            (click)="selectedCommander.set(item.name)"
+          >
+            <img
+              [src]="'/art/' + item.art + '.jpg'"
+              alt=""
+              width="62"
+              height="62"
+              loading="lazy"
+            /><span
+              ><strong>{{ item.name }}</strong
+              ><small
+                >{{ i18n.matches(item.wins + item.losses) }} ·
+                {{ i18n.record(item.wins, item.losses) }}</small
+              ></span
+            ><b>{{ i18n.percent(item.wins / (item.wins + item.losses)) }}</b>
+          </button>
+        }
+      </div>
+      <div class="commander-insight" aria-live="polite">
+        <span class="insight-mark" aria-hidden="true">↗</span>
+        <div>
+          <strong>{{
+            i18n.t('commanderRate', {
+              name: commander().name,
+              rate: i18n.percent(commander().wins / (commander().wins + commander().losses)),
+            })
+          }}</strong>
+          <p>
+            {{
+              i18n.t('commanderRecord', {
+                record: i18n.record(commander().wins, commander().losses),
+                count: commander().wins + commander().losses,
+              })
+            }}<br />{{ colors() }}.
+          </p>
+        </div>
+      </div>
+    </section>
+    <section class="rivalry-panel" id="rivalry" aria-labelledby="rivalry-title">
+      <div class="rivalry-intro">
+        <p class="eyebrow">{{ i18n.t('rivalryEyebrow') }}</p>
+        <h2 id="rivalry-title">{{ i18n.t('rivalryTitle') }}</h2>
+        <p>{{ i18n.t('rivalryBody') }}</p>
+      </div>
+      <div class="rivalry-score">
+        <span class="rival-avatar self">A</span>
+        <div class="rival-name">
+          <strong>{{ i18n.t('you') }}</strong
+          ><span>Anderson</span>
+        </div>
+        <div class="head-to-head">
+          <strong>5 <span>:</span> 4</strong
+          ><span>{{ i18n.t('confrontations', { count: 9 }) }}</span>
+        </div>
+        <div class="rival-name opponent">
+          <strong>Lucas M.</strong><span>{{ i18n.t('frequentRival') }}</span>
+        </div>
+        <span class="rival-avatar other">LM</span>
+      </div>
+      <span class="rivalry-note">{{ i18n.t('lastWin') }} <b>2–1 ↗</b></span>
+    </section>
+  </div>
+  <p class="data-note">
+    <strong>{{ i18n.t('demo') }}.</strong> {{ i18n.t('dataNote') }}
+    <a href="/art/credits.json" target="_blank" rel="noopener">{{ i18n.t('credits') }}</a
+    >.
+  </p>
+</div>

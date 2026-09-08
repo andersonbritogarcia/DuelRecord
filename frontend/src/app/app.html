@@ -1,0 +1,87 @@
+<div class="app-shell" [class.theme-dark]="preferences.theme() === 'dark'">
+  <a
+    class="skip-link"
+    href="#main"
+    (click)="$event.preventDefault(); mainContent.focus(); mainContent.scrollIntoView()"
+    >{{ i18n.t('skip') }}</a
+  >
+  <header class="site-header">
+    <a
+      class="brand"
+      routerLink="/"
+      queryParamsHandling="preserve"
+      [attr.aria-label]="i18n.t('home')"
+    >
+      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true">
+        <path d="M5 5h13l9 15-9 15H5l9-15z" fill="currentColor" />
+        <path d="M24 5h11L26 20l9 15H24l-9-15z" fill="currentColor" opacity=".45" />
+      </svg>
+      <span>duel<span class="brand-light">record</span><span class="brand-dot">.</span></span>
+    </a>
+    <nav [attr.aria-label]="i18n.t('navigation')">
+      <a
+        routerLink="/"
+        queryParamsHandling="preserve"
+        routerLinkActive="nav-active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        ariaCurrentWhenActive="page"
+        >{{ i18n.t('overview') }}</a
+      >
+      <a routerLink="/" fragment="history" queryParamsHandling="preserve">{{
+        i18n.t('matches')
+      }}</a>
+      <a routerLink="/" fragment="commanders" queryParamsHandling="preserve">{{
+        i18n.t('commanders')
+      }}</a>
+      <a routerLink="/" fragment="rivalry" queryParamsHandling="preserve">{{
+        i18n.t('rivalries')
+      }}</a>
+    </nav>
+    <div class="header-preferences">
+      <label class="sr-only" for="app-language">{{ i18n.t('language') }}</label>
+      <select
+        #language
+        id="app-language"
+        class="language-select"
+        [value]="preferences.locale()"
+        (change)="preferences.setLocale(language.value)"
+      >
+        <option value="pt-BR" lang="pt-BR">Português</option>
+        <option value="en" lang="en">English</option>
+        <option value="fr" lang="fr">Français</option>
+      </select>
+      <button
+        class="theme-toggle"
+        type="button"
+        [attr.aria-label]="i18n.t('darkTheme')"
+        [attr.title]="i18n.t('darkTheme')"
+        [attr.aria-pressed]="preferences.theme() === 'dark'"
+        (click)="preferences.toggleTheme()"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.6"
+          aria-hidden="true"
+        >
+          @if (preferences.theme() === 'dark') {
+            <circle cx="12" cy="12" r="4" />
+            <path
+              d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"
+            />
+          } @else {
+            <path d="M20.4 14.1A8.6 8.6 0 019.9 3.6 8.6 8.6 0 1020.4 14.1Z" />
+          }
+        </svg>
+      </button>
+      <span class="user-avatar" [attr.aria-label]="i18n.t('profile')">A</span>
+    </div>
+  </header>
+  <main #mainContent id="main" tabindex="-1"><router-outlet /></main>
+  <footer class="site-footer">
+    <span
+      >duelrecord. <span>{{ i18n.t('tagline') }}</span></span
+    ><span>{{ i18n.t('disconnected') }}</span>
+  </footer>
+</div>

@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Tamiyo, Inquisitive Student // Tamiyo, Seasoned Scholar",
+    "artist": "Magali Villeneuve",
+    "source": "https://scryfall.com/card/mh3/242/tamiyo-inquisitive-student-tamiyo-seasoned-scholar?utm_source=api",
+    "image": "https://cards.scryfall.io/art_crop/front/2/a/2a717b98-cdac-416d-bf6c-f6b6638e65d1.jpg?1783911236",
+    "file": "tamiyo.jpg"
+  },
+  {
+    "name": "Ajani, Nacatl Pariah // Ajani, Nacatl Avenger",
+    "artist": "Chris Rallis",
+    "source": "https://scryfall.com/card/mh3/237/ajani-nacatl-pariah-ajani-nacatl-avenger?utm_source=api",
+    "image": "https://cards.scryfall.io/art_crop/front/0/d/0d16e8e0-31b2-4389-afd6-783c501f6fa0.jpg?1783911238",
+    "file": "ajani.jpg"
+  },
+  {
+    "name": "Atraxa, Grand Unifier",
+    "artist": "Marta Nael",
+    "source": "https://scryfall.com/card/one/196/atraxa-grand-unifier?utm_source=api",
+    "image": "https://cards.scryfall.io/art_crop/front/4/a/4a1f905f-1d55-4d02-9d24-e58070793d3f.jpg?1783918003",
+    "file": "atraxa.jpg"
+  },
+  {
+    "name": "Tasigur, the Golden Fang",
+    "artist": "Chris Rahn",
+    "source": "https://scryfall.com/card/tdc/197/tasigur-the-golden-fang?utm_source=api",
+    "image": "https://cards.scryfall.io/art_crop/front/1/7/175ad810-3cdd-43c7-99a9-8a2e8ad6dbae.jpg?1783907079",
+    "file": "tasigur.jpg"
+  }
+]
