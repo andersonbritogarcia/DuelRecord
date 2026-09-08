@@ -20,6 +20,16 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: https://localhost:8443/certs
+          issuer-uri: https://accounts.google.com
+          audiences: test-client.apps.googleusercontent.com
+
+app:
+  cors:
+    allowed-origins: http://localhost:4200
+  scryfall:
+    base-url: https://api.scryfall.com
+server:
+  port: 0
 
 logging:
   level:

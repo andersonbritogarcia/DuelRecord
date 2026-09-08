@@ -25,6 +25,16 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class ResolveAuthenticatedUserUseCaseTest {
 
+    @Test
+    void shouldRejectSuspendedUserBeforeUpdatingEmailOrPublishingEvent() {
+        var user = User.builder().id(UUID.randomUUID()).authProviderId("blocked")
+                .email("old@example.com").status(UserStatus.SUSPENDED).build();
+        when(userRepository.findByAuthProviderId("blocked")).thenReturn(Optional.of(user));
+        assertThrows(UnauthorizedException.class, () -> useCase.execute(new GoogleUserPrincipal("blocked", "new@example.com")));
+        verify(userRepository, never()).save(any());
+        verifyNoInteractions(eventPublisher);
+    }
+
     @InjectMocks
     private ResolveAuthenticatedUserUseCase useCase;
     @Mock

@@ -69,7 +69,7 @@ class StringTrimmingIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/geo/cities")
+        mockMvc.perform(post("/api/geo/cities").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isCreated())

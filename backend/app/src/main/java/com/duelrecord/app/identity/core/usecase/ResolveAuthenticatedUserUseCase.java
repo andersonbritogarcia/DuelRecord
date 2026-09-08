@@ -3,6 +3,7 @@ package com.duelrecord.app.identity.core.usecase;
 import com.duelrecord.app.identity.UserAuthenticatedEvent;
 import com.duelrecord.app.identity.persistence.model.GoogleUserPrincipal;
 import com.duelrecord.app.identity.persistence.model.User;
+import com.duelrecord.app.identity.persistence.model.UserStatus;
 import com.duelrecord.app.identity.persistence.repository.UserRepository;
 import com.duelrecord.app.shared.exceptions.UnauthorizedException;
 import com.duelrecord.app.shared.usecase.UseCase;
@@ -33,6 +34,9 @@ public class ResolveAuthenticatedUserUseCase implements UseCase<GoogleUserPrinci
         }
 
         User user = userRepository.findByAuthProviderId(principal.authProviderId()).map(existingUser -> {
+            if (existingUser.getStatus() != UserStatus.ACTIVE) {
+                throw new UnauthorizedException("problem.unauthenticated.detail");
+            }
             if (!existingUser.hasSameEmail(principal.email())) {
                 existingUser.updateEmail(principal.email());
                 return userRepository.save(existingUser);

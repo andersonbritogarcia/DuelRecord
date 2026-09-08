@@ -1,0 +1,6 @@
+{
+  "sourceRoots": ["frontend/src"],
+  "locale": "pt-BR",
+  "canonicalMap": "UX-CONTRACT.md",
+  "ownership": { "Select/Listbox": "native" }
+}

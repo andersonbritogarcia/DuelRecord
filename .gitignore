@@ -22,3 +22,22 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Local environment configuration and credentials
+**/.env
+**/.env.*
+frontend/public/runtime-config.json
+
+# IDEs and editors
+.idea/
+*.iml
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Design and artifact scratch files
+.design/
+/*.jpg
+/*.png

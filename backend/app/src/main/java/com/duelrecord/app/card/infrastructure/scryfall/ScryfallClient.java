@@ -28,7 +28,7 @@ public class ScryfallClient {
     private final RestClient restClient;
     private final AtomicLong lastRequestTime = new AtomicLong(0);
 
-    public ScryfallClient(@Value("${app.scryfall.base-url:https://api.scryfall.com}") String baseUrl) {
+    public ScryfallClient(@Value("${app.scryfall.base-url}") String baseUrl) {
         this.restClient = RestClient.builder()
                 .baseUrl(baseUrl)
                 .defaultHeader("User-Agent", "DuelRecord/1.0 (competitive MTG record app)")

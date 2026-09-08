@@ -196,8 +196,8 @@ Match
 - updated_at
 ```
 
-- **UNVERIFIED:** Registradas unilateralmente (contam para estatísticas gerais, perfil e rivalidades).
-- **VERIFIED:** Validadas mutuamente ou importadas (alimentam os rankings de topo).
+- **UNVERIFIED:** Registradas unilateralmente (contam para estatísticas gerais, perfil, rivalidades e Ranking Comunitário/Geral).
+- **VERIFIED:** Validadas mutuamente ou importadas (alimentam o Ranking Oficial/Verificado e o Ranking Comunitário/Geral).
 
 ---
 
@@ -236,7 +236,7 @@ Play/Draw registrado por game. Backend calcula win/loss da match.
 - Match Record & Match WR
 - Game Record & Game WR
 - Play/Draw WR
-- Player Rating (Glicko-2 por formato)
+- Player Rating (Glicko-2 por formato com visão dupla: Oficial/Verificado e Comunitário/Geral)
 - Commander Performance Score (Wilson Lower Bound)
 
 ---

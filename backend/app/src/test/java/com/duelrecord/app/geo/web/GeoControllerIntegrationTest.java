@@ -75,6 +75,15 @@ class GeoControllerIntegrationTest {
     }
 
     @Test
+    void shouldRejectAnonymousCityCreation() throws Exception {
+        mockMvc.perform(post("/api/geo/cities")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"countryCode\":\"BR\",\"name\":\"Campinas\"}"))
+                .andExpect(status().isUnauthorized());
+        assertEquals(0, cityRepository.count());
+    }
+
+    @Test
     void shouldCreateAndSearchCities() throws Exception {
         String payload = """
                 {
@@ -83,7 +92,7 @@ class GeoControllerIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/geo/cities")
+        mockMvc.perform(post("/api/geo/cities").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isCreated())
@@ -94,7 +103,7 @@ class GeoControllerIntegrationTest {
         assertEquals(1, cityRepository.count());
 
         // Idempotent creation returns existing
-        mockMvc.perform(post("/api/geo/cities")
+        mockMvc.perform(post("/api/geo/cities").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isCreated())
@@ -120,7 +129,7 @@ class GeoControllerIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/geo/cities")
+        mockMvc.perform(post("/api/geo/cities").with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(payload))
                 .andExpect(status().isNotFound())

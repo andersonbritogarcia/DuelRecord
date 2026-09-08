@@ -8,9 +8,9 @@ import com.duelrecord.app.geo.core.usecase.SearchCitiesUseCase;
 import com.duelrecord.app.geo.web.dto.CityResponse;
 import com.duelrecord.app.geo.web.dto.CountryResponse;
 import com.duelrecord.app.geo.web.dto.CreateCityRequest;
+import com.duelrecord.app.shared.pagination.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -42,10 +42,10 @@ public class GeoController {
     }
 
     @GetMapping("/cities")
-    public Page<CityResponse> searchCities(@RequestParam(name = "country", required = false) String countryCode,
+    public PageResponse<CityResponse> searchCities(@RequestParam(name = "country", required = false) String countryCode,
                                            @RequestParam(name = "q", required = false) String query,
                                            @PageableDefault(size = 20) Pageable pageable) {
-        return searchCitiesUseCase.execute(new SearchCitiesInput(countryCode, query, pageable)).map(CityResponse::fromDomain);
+        return PageResponse.from(searchCitiesUseCase.execute(new SearchCitiesInput(countryCode, query, pageable)), CityResponse::fromDomain);
     }
 
     @PostMapping("/cities")
