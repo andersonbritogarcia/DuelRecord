@@ -2,9 +2,12 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners, isDevMode } from
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { routes } from './app.routes';
 import { provideServiceWorker } from '@angular/service-worker';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { apiInterceptor } from './core/auth';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideHttpClient(withInterceptors([apiInterceptor])),
     provideBrowserGlobalErrorListeners(),
     provideRouter(
       routes,

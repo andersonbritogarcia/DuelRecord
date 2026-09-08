@@ -188,12 +188,15 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
 ### [ ] Task 4.2: Rating Calculators (Glicko-2 & Wilson Score)
 * **Módulo:** `rating`
 * **Escopo:**
-  1. Implementar motor de cálculo Glicko-2 (`rating`, `rating_deviation`, `volatility`) isolado por formato.
-  2. Criar serviço de cálculo do Wilson Lower Bound para ordenação de performance de comandantes.
-  3. Garantir que apenas partidas `VERIFIED` modifiquem os ratings oficiais da tabela `player_ratings`.
+  1. Implementar motor de cálculo Glicko-2 (`rating`, `rating_deviation`, `volatility`) isolado por formato (`DUEL_COMMANDER`, `DUEL_COMMANDER_500`, `BRAWL`).
+  2. Implementar suporte a visão dupla de ranking por formato (`player_ratings`):
+     - **Ranking Oficial (Verificado):** calculado exclusivamente a partir de partidas com `verification_status = VERIFIED`.
+     - **Ranking Comunitário (Geral):** calculado considerando todas as partidas (`VERIFIED` + `UNVERIFIED`).
+  3. Criar serviço de cálculo do Wilson Lower Bound para ordenação de performance de comandantes.
 * **Critérios de Aceite:**
   * Comandante com 1 vitória e 0 derrotas (100% WR) fica ranqueado abaixo de um com 50 vitórias e 5 derrotas (90.9% WR) via Wilson Score.
   * Partidas de DC 500 não afetam o rating de Duel Commander.
+  * Submissão de partida `UNVERIFIED` atualiza o rating da visão Comunitária/Geral sem alterar o rating Oficial/Verificado.
 * **Depende de:** Task 3.3 | **Paralelizável com:** Task 4.1
 
 ---
@@ -211,7 +214,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
   * Ao religar a rede, a partida é enviada à API e o status muda para sincronizado.
 * **Depende de:** Task 1.2 | **Paralelizável com:** Task 5.2, 5.3
 
-### [ ] Task 5.2: Auth Integration & Player Profile UI
+### [x] Task 5.2: Auth Integration & Player Profile UI
 * **Feature:** `features/auth` + `features/players`
 * **Escopo:**
   1. Implementar botão e fluxo de login com Google Identity Services SDK no Angular.
@@ -222,7 +225,7 @@ Este documento detalha o backlog técnico para implementação do MVP (V1) do **
   * Perfil público exibe os dados consumindo `GET /api/players/{id}`.
 * **Depende de:** Task 2.1, Task 2.3 | **Paralelizável com:** Task 5.3, 5.4, 5.5
 
-### [ ] Task 5.3: Rapid Match Recording Form (Mobile-First UX)
+### [x] Task 5.3: Rapid Match Recording Form (Mobile-First UX)
 * **Feature:** `features/matches`
 * **Escopo:**
   1. Criar formulário mobile-first para registro em menos de 20 segundos.

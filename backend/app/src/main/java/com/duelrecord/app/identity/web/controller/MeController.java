@@ -3,6 +3,7 @@ package com.duelrecord.app.identity.web.controller;
 import com.duelrecord.app.identity.core.usecase.ResolveAuthenticatedUserUseCase;
 import com.duelrecord.app.identity.persistence.model.GoogleUserPrincipal;
 import com.duelrecord.app.identity.web.dto.MeResponse;
+import com.duelrecord.app.shared.utils.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -30,13 +31,8 @@ public class MeController {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, message());
         }
 
-        var sub = jwt.getSubject();
-        var email = jwt.getClaimAsString("email");
-        var name = jwt.getClaimAsString("name");
-        if (name == null || name.isBlank()) {
-            name = jwt.getClaimAsString("given_name");
-        }
-        var user = resolveAuthenticatedUserUseCase.execute(new GoogleUserPrincipal(sub, email, name));
+        var userInfo = JwtUtils.extractUserInfo(jwt);
+        var user = resolveAuthenticatedUserUseCase.execute(new GoogleUserPrincipal(userInfo.sub(), userInfo.email(), userInfo.name()));
         return MeResponse.fromDomain(user);
     }
 

@@ -2,9 +2,11 @@
 
 ## Current scope
 
-Two existing routes: `/` (demo dashboard) and `/fast-match` (draft form). Public pages and player/commander search are planned, not yet implemented. Both themes use the same navigation and data order.
+Routes: `/login` (Google entry), `/` and `/profile` (authenticated account), `/preview` (demo dashboard), and `/fast-match` (public draft prototype without API writes). Public discovery and player/commander search remain planned. Both themes share navigation and data order. Real account screens never substitute sample statistics for API data.
 
 ## Canonical UI Map
+
+Authentication is owned by `frontend/src/app/core/auth.ts`; deployment configuration by `frontend/scripts/runtime-config.mjs`. Tokens and account data stay in memory. Logout and expiry clear drafts as well. See `frontend/AUTH-INTEGRATION.md` for setup and limitations.
 
 | Capability | Canonical owner | Source of truth | Allowed variants | Verification |
 | --- | --- | --- | --- | --- |

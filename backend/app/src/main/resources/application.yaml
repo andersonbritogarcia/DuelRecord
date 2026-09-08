@@ -2,9 +2,9 @@ spring:
   application:
     name: duelrecord
   datasource:
-    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/duel-record-db}
-    username: ${DATASOURCE_USERNAME:postgres}
-    password: ${DATASOURCE_PASSWORD:masterkey}
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     open-in-view: false
@@ -19,4 +19,16 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: ${GOOGLE_JWK_SET_URI:https://www.googleapis.com/oauth2/v3/certs}
+          jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+          issuer-uri: https://accounts.google.com
+          audiences: ${GOOGLE_CLIENT_ID}
+app:
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS}
+  scryfall:
+    base-url: https://api.scryfall.com
+server:
+  port: 8080
+  error:
+    include-message: never
+    include-stacktrace: never

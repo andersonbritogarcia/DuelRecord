@@ -9,6 +9,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -54,7 +55,39 @@ public class ScryfallCardDto {
     }
 
     public String resolveTypeLine() {
-        return Objects.nonNull(typeLine) ? typeLine : "Card";
+        if (Objects.nonNull(typeLine)) {
+            return typeLine;
+        }
+        if (Objects.nonNull(cardFaces) && !cardFaces.isEmpty()) {
+            return cardFaces.stream()
+                    .map(ScryfallCardFaceDto::getTypeLine)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining(" // "));
+        }
+        return "Card";
+    }
+
+    public String resolveManaCost() {
+        if (Objects.nonNull(manaCost)) {
+            return manaCost;
+        }
+        if (Objects.nonNull(cardFaces) && !cardFaces.isEmpty() && Objects.nonNull(cardFaces.get(0).getManaCost())) {
+            return cardFaces.get(0).getManaCost();
+        }
+        return null;
+    }
+
+    public String resolveOracleText() {
+        if (Objects.nonNull(oracleText)) {
+            return oracleText;
+        }
+        if (Objects.nonNull(cardFaces) && !cardFaces.isEmpty()) {
+            return cardFaces.stream()
+                    .map(ScryfallCardFaceDto::getOracleText)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.joining("\n"));
+        }
+        return null;
     }
 
     public String resolveColorIdentity() {
@@ -67,7 +100,7 @@ public class ScryfallCardDto {
                 resolveOracleId(),
                 name,
                 resolveTypeLine(),
-                manaCost,
+                resolveManaCost(),
                 cmc,
                 resolveColorIdentity(),
                 resolveSmallImageUri(),
@@ -85,7 +118,7 @@ public class ScryfallCardDto {
                 resolveOracleId(),
                 name,
                 resolveTypeLine(),
-                manaCost,
+                resolveManaCost(),
                 cmc,
                 resolveColorIdentity(),
                 resolveSmallImageUri(),
@@ -130,13 +163,15 @@ public class ScryfallCardDto {
     }
 
     public boolean isCommanderEligible() {
-        if (Objects.isNull(typeLine)) {
+        String effectiveType = resolveTypeLine();
+        if (Objects.isNull(effectiveType)) {
             return false;
         }
-        String lowerType = typeLine.toLowerCase();
+        String lowerType = effectiveType.toLowerCase();
         boolean isLegendaryCreature = lowerType.contains("legendary") && lowerType.contains("creature");
         boolean isLegendaryPlaneswalker = lowerType.contains("legendary") && lowerType.contains("planeswalker");
-        boolean isCanBeCommander = Objects.nonNull(oracleText) && oracleText.toLowerCase().contains("can be your commander");
+        String effectiveOracle = resolveOracleText();
+        boolean isCanBeCommander = Objects.nonNull(effectiveOracle) && effectiveOracle.toLowerCase().contains("can be your commander");
         return isLegendaryCreature || isLegendaryPlaneswalker || isCanBeCommander;
     }
 
@@ -149,8 +184,9 @@ public class ScryfallCardDto {
                 }
             }
         }
-        if (Objects.nonNull(oracleText)) {
-            String lowerOracle = oracleText.toLowerCase();
+        String effectiveOracle = resolveOracleText();
+        if (Objects.nonNull(effectiveOracle)) {
+            String lowerOracle = effectiveOracle.toLowerCase();
             return lowerOracle.contains("partner") || lowerOracle.contains("choose a background");
         }
         return false;
@@ -164,10 +200,12 @@ public class ScryfallCardDto {
                 }
             }
         }
-        return Objects.nonNull(oracleText) && oracleText.toLowerCase().contains("companion —");
+        String effectiveOracle = resolveOracleText();
+        return Objects.nonNull(effectiveOracle) && effectiveOracle.toLowerCase().contains("companion —");
     }
 
     public boolean isBackgroundMechanic() {
-        return Objects.nonNull(typeLine) && typeLine.toLowerCase().contains("background");
+        String effectiveType = resolveTypeLine();
+        return Objects.nonNull(effectiveType) && effectiveType.toLowerCase().contains("background");
     }
 }

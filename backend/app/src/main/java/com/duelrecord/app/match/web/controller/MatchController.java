@@ -15,11 +15,12 @@ import com.duelrecord.app.match.persistence.model.Match;
 import com.duelrecord.app.match.web.dto.MatchResponse;
 import com.duelrecord.app.match.web.dto.RecordMatchRequest;
 import com.duelrecord.app.shared.exceptions.EntityNotFoundException;
+import com.duelrecord.app.shared.pagination.PageResponse;
+import com.duelrecord.app.shared.utils.JwtUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -116,14 +117,16 @@ public class MatchController {
     }
 
     @GetMapping
-    public Page<MatchResponse> listMatches(
+    public PageResponse<MatchResponse> listMatches(
             @RequestParam(required = false) UUID playerId,
             @RequestParam(required = false) GameFormat format,
             @RequestParam(required = false) Platform platform,
             Pageable pageable
     ) {
-        return listMatchesUseCase.execute(new ListMatchesInput(playerId, format, platform, pageable))
-                .map(MatchResponse::fromEntity);
+        return PageResponse.from(
+                listMatchesUseCase.execute(new ListMatchesInput(playerId, format, platform, pageable)),
+                MatchResponse::fromEntity
+        );
     }
 
     private AuthenticatedUserDto resolveAuthenticatedUser(Jwt jwt) {
@@ -132,12 +135,7 @@ public class MatchController {
                     messageSource.getMessage("problem.unauthenticated.detail", null, LocaleContextHolder.getLocale()));
         }
 
-        var sub = jwt.getSubject();
-        var email = jwt.getClaimAsString("email");
-        var name = jwt.getClaimAsString("name");
-        if (name == null || name.isBlank()) {
-            name = jwt.getClaimAsString("given_name");
-        }
-        return identityApi.resolveUser(sub, email, name);
+        var userInfo = JwtUtils.extractUserInfo(jwt);
+        return identityApi.resolveUser(userInfo.sub(), userInfo.email(), userInfo.name());
     }
 }

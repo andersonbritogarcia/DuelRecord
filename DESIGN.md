@@ -12,6 +12,8 @@ This identity applies to future public pages, player/opponent search and profile
 
 ## Colors
 
+The login and account screens share these tokens. Login uses commander art and a single Google entry point; missing configuration and failed connection have translated messages. `/preview` preserves the approved sample dashboard. Authenticated account screens display API data only, with explicit unfilled profile fields and no fabricated statistics.
+
 Runtime authority: `frontend/src/styles.css`. `:root` owns the light semantic tokens; `:root[data-theme='dark']` overrides them. Shared chrome, dashboard and match-entry consume the same tokens. The `.theme-dark` class only supplies the approved dark art treatment.
 
 | Role | Token | Light | Dark |

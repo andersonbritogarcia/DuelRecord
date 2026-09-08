@@ -27,29 +27,59 @@
         ariaCurrentWhenActive="page"
         >{{ i18n.t('overview') }}</a
       >
-      <a routerLink="/" fragment="history" queryParamsHandling="preserve">{{
+      <a routerLink="/preview" fragment="history" queryParamsHandling="preserve">{{
         i18n.t('matches')
       }}</a>
-      <a routerLink="/" fragment="commanders" queryParamsHandling="preserve">{{
+      <a routerLink="/preview" fragment="commanders" queryParamsHandling="preserve">{{
         i18n.t('commanders')
       }}</a>
-      <a routerLink="/" fragment="rivalry" queryParamsHandling="preserve">{{
+      <a routerLink="/preview" fragment="rivalry" queryParamsHandling="preserve">{{
         i18n.t('rivalries')
       }}</a>
     </nav>
     <div class="header-preferences">
-      <label class="sr-only" for="app-language">{{ i18n.t('language') }}</label>
-      <select
-        #language
-        id="app-language"
-        class="language-select"
-        [value]="preferences.locale()"
-        (change)="preferences.setLocale(language.value)"
+      <div
+        class="language-switch"
+        role="radiogroup"
+        [attr.aria-label]="i18n.t('language')"
       >
-        <option value="pt-BR" lang="pt-BR">Português</option>
-        <option value="en" lang="en">English</option>
-        <option value="fr" lang="fr">Français</option>
-      </select>
+        <button
+          type="button"
+          class="language-pill"
+          role="radio"
+          [class.active]="preferences.locale() === 'pt-BR'"
+          [attr.aria-checked]="preferences.locale() === 'pt-BR'"
+          aria-label="Português"
+          title="Português"
+          (click)="preferences.setLocale('pt-BR')"
+        >
+          PT
+        </button>
+        <button
+          type="button"
+          class="language-pill"
+          role="radio"
+          [class.active]="preferences.locale() === 'en'"
+          [attr.aria-checked]="preferences.locale() === 'en'"
+          aria-label="English"
+          title="English"
+          (click)="preferences.setLocale('en')"
+        >
+          EN
+        </button>
+        <button
+          type="button"
+          class="language-pill"
+          role="radio"
+          [class.active]="preferences.locale() === 'fr'"
+          [attr.aria-checked]="preferences.locale() === 'fr'"
+          aria-label="Français"
+          title="Français"
+          (click)="preferences.setLocale('fr')"
+        >
+          FR
+        </button>
+      </div>
       <button
         class="theme-toggle"
         type="button"
@@ -75,13 +105,43 @@
           }
         </svg>
       </button>
-      <span class="user-avatar" [attr.aria-label]="i18n.t('profile')">A</span>
+      @if (session.authenticated()) {
+        <a class="user-avatar" routerLink="/profile" [attr.aria-label]="i18n.t('authAccount')">{{
+          (session.player()?.displayName || session.account()?.email || '?').charAt(0).toUpperCase()
+        }}</a>
+        <button
+          type="button"
+          class="header-logout"
+          [attr.aria-label]="i18n.t('authLogout')"
+          [attr.title]="i18n.t('authLogout')"
+          (click)="logout()"
+        >
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          <span>{{ i18n.t('authLogout') }}</span>
+        </button>
+      } @else {
+        <a routerLink="/login">{{ i18n.t('authSignIn') }}</a>
+      }
     </div>
   </header>
-  <main #mainContent id="main" tabindex="-1"><router-outlet /></main>
+  <main #mainContent id="#main" tabindex="-1"><router-outlet /></main>
   <footer class="site-footer">
     <span
       >duelrecord. <span>{{ i18n.t('tagline') }}</span></span
-    ><span>{{ i18n.t('disconnected') }}</span>
+    ><span>{{ i18n.t(session.authenticated() ? 'authConnected' : 'disconnected') }}</span>
   </footer>
 </div>

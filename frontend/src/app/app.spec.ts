@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { DOCUMENT } from '@angular/common';
 import { provideRouter, Router } from '@angular/router';
 import { App } from './app';
+import { provideHttpClient } from '@angular/common/http';
+import { RUNTIME_CONFIG } from './core/runtime-config';
 import { routes } from './app.routes';
 import { UiPreferences, PREFERENCE_KEY, PREFERENCE_STORAGE } from './core/ui-preferences';
 import { I18n, messages } from './core/i18n/i18n';
@@ -15,6 +17,15 @@ describe('Application preferences and localization', () => {
     await TestBed.configureTestingModule({
       imports: [App, DashboardComponent],
       providers: [
+        provideHttpClient(),
+        {
+          provide: RUNTIME_CONFIG,
+          useValue: {
+            apiBaseUrl: 'http://localhost:8080/api',
+            googleClientId: '',
+            requestTimeoutMs: 15000,
+          },
+        },
         provideRouter(routes),
         {
           provide: PREFERENCE_STORAGE,
@@ -105,6 +116,30 @@ describe('Application preferences and localization', () => {
     const dom: HTMLElement = fixture.nativeElement;
     expect(dom.textContent).toContain('Ajani · 60% win rate');
     expect(dom.textContent).toContain('Loss');
+  });
+
+  it('switches language through the segmented pill selector', async () => {
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+    const prefs = TestBed.inject(UiPreferences);
+    expect(prefs.locale()).toBe('pt-BR');
+
+    const pills = fixture.nativeElement.querySelectorAll(
+      '.language-pill',
+    ) as NodeListOf<HTMLButtonElement>;
+    expect(pills.length).toBe(3);
+    expect(pills[0].textContent?.trim()).toBe('PT');
+    expect(pills[1].textContent?.trim()).toBe('EN');
+    expect(pills[2].textContent?.trim()).toBe('FR');
+    expect(pills[0].classList.contains('active')).toBe(true);
+
+    pills[1].click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(prefs.locale()).toBe('en');
+    expect(pills[1].classList.contains('active')).toBe(true);
+    expect(pills[0].classList.contains('active')).toBe(false);
   });
 
   it('migrates old proposal links and keeps route, draft, title and language coherent', async () => {

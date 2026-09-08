@@ -4,6 +4,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { filter } from 'rxjs';
 import { UiPreferences } from './core/ui-preferences';
+import { Session } from './core/auth';
 import { I18n } from './core/i18n/i18n';
 
 @Component({
@@ -14,6 +15,11 @@ import { I18n } from './core/i18n/i18n';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class App {
+  protected readonly session = inject(Session);
+  protected logout() {
+    this.session.logout();
+    window.google?.accounts.id.disableAutoSelect();
+  }
   protected readonly preferences = inject(UiPreferences);
   protected readonly i18n = inject(I18n);
   private readonly router = inject(Router);
@@ -42,7 +48,7 @@ export class App {
     effect(() => {
       this.navigation();
       this.title.setTitle(
-        `${this.i18n.t(this.router.url.split(/[?#]/)[0] === '/fast-match' ? 'record' : 'overview')} · DuelRecord`,
+        `${this.i18n.t(this.router.url.split(/[?#]/)[0] === '/fast-match' ? 'record' : this.router.url.startsWith('/login') ? 'authSignIn' : this.router.url.startsWith('/profile') ? 'authAccount' : 'overview')} · DuelRecord`,
       );
     });
   }

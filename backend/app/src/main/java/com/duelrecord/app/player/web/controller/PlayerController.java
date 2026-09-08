@@ -4,9 +4,9 @@ import com.duelrecord.app.player.core.usecase.*;
 import com.duelrecord.app.player.web.dto.CreateGhostPlayerRequest;
 import com.duelrecord.app.player.web.dto.PlayerResponse;
 import com.duelrecord.app.shared.exceptions.EntityNotFoundException;
+import com.duelrecord.app.shared.pagination.PageResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
@@ -24,9 +24,9 @@ public class PlayerController {
     private final CreateGhostPlayerUseCase createGhostPlayerUseCase;
 
     @GetMapping
-    public Page<PlayerResponse> searchPlayers(@RequestParam(name = "q", required = false) String query,
-                                              @PageableDefault(size = 20) Pageable pageable) {
-        return searchPlayersUseCase.execute(new SearchPlayersInput(query, pageable)).map(PlayerResponse::fromDomain);
+    public PageResponse<PlayerResponse> searchPlayers(@RequestParam(name = "q", required = false) String query,
+                                                      @PageableDefault(size = 20) Pageable pageable) {
+        return PageResponse.from(searchPlayersUseCase.execute(new SearchPlayersInput(query, pageable)), PlayerResponse::fromDomain);
     }
 
     @GetMapping("/{id}")
